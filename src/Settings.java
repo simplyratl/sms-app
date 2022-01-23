@@ -26,6 +26,9 @@ public class Settings extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					if(MysqlConn.conn() == null) {
+						return;
+					}
 					Settings frame = new Settings();
 					frame.setVisible(true);
 				} catch (Exception e) {

@@ -49,6 +49,9 @@ public class Registration extends JFrame {
 			
 			public void run() {
 				try {
+					if(MysqlConn.conn() == null) {
+						return;
+					}
 					Registration frame = new Registration();
 					frame.setResizable(false);
 					frame.setVisible(true);

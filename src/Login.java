@@ -45,6 +45,10 @@ public class Login extends JFrame{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					if(MysqlConn.conn() == null) {
+						System.exit(ERROR);
+						return;
+					}
 					Login frame = new Login();
 					frame.setResizable(false);
 					frame.setVisible(true);

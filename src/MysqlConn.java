@@ -20,11 +20,13 @@ public class MysqlConn {
 	    	
 	     // Class.forName("com.mysql.cj.jdbc.Driver");
 	      con = DriverManager.getConnection(url, username, password);
-	      System.out.println("Uspje�na konekcija!");
+	      System.out.println("Uspješna konekcija!");
 	      return con;
 
 	    } catch (SQLException ex) {
-	        throw new Error("Error ", ex);
+//	        throw new Error("Error ", ex);
+	    	JOptionPane.showMessageDialog(null, "Baza nije uključena, ili je došlo do greške u konekciji.");
+	        return null;
 	       
 	    } 
 	    

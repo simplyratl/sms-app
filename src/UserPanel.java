@@ -50,6 +50,9 @@ public class UserPanel extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					if(MysqlConn.conn() == null) {
+						return;
+					}
 					UserPanel frame = new UserPanel(userName, userNumber);
 					frame.setVisible(true);
 				} catch (Exception e) {

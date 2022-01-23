@@ -69,6 +69,9 @@ public class Inbox extends JFrame{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					if(MysqlConn.conn() == null) {
+						return;
+					}
 					Inbox frame = new Inbox();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -175,6 +178,7 @@ public class Inbox extends JFrame{
 		
 	//	if(Login.userLoged == true) {
 						
+		
 			String[][] data_sent_msg = Models.getSendMsg();
 			String column[] = {"KORISNIK","PORUKA","DATUM"};   
 			JTable jt = new JTable(data_sent_msg,column);        
