@@ -138,11 +138,6 @@ public class Inbox extends JFrame{
 		lblNewLabel_2.setBounds(233, 37, 105, 45);
 		panel.add(lblNewLabel_2);
 		
-//		
-		
-		
-		
-		
 		Button button_1_1 = new Button("Nazad");
 		button_1_1.setForeground(Color.WHITE);
 		button_1_1.setBackground(new Color(Login.backgroundColor[0], Login.backgroundColor[1], Login.backgroundColor[2]));
@@ -183,21 +178,22 @@ public class Inbox extends JFrame{
 			String column[] = {"KORISNIK","PORUKA","DATUM"};   
 			JTable jt = new JTable(data_sent_msg,column);        
 			JScrollPane sent_msg = new JScrollPane(jt);  
-			
-			
+			jt.getColumnModel().getColumn(1).setPreferredWidth(250);
+			jt.getColumnModel().getColumn(0).setPreferredWidth(150);
 			
 			String[][] data_received_msg = Models.getReceivedMsg();
 			JTable jt2 = new JTable(data_received_msg,column);    
 			//jt.setBounds(0,0,200,300);          
 			JScrollPane received_msg = new JScrollPane(jt2);  
-	
+			jt2.getColumnModel().getColumn(1).setPreferredWidth(250);
+			jt2.getColumnModel().getColumn(0).setPreferredWidth(150);
 			
 		    JTabbedPane tp = new JTabbedPane();  
 		    tp.setBounds(10,141,320,400); 
 		    tp.addTab("Primljene", received_msg);  
 		    tp.addTab("Poslate", sent_msg);   
 		    contentPane.add(tp);
-	//	} 
+//		} 
 	    
 /*-----------------------------------------------------------------------------------------*/	  	    
 	    

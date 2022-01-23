@@ -159,9 +159,6 @@ public class Registration extends JFrame {
 				String number = txtNumber.getText();
 				
 				
-
-				
-				
 				try {
 					 Class.forName("com.mysql.cj.jdbc.Driver");
 					// Connection con = DriverManager.getConnection("jdbc:mysql://localhost/sms", "root","");
@@ -175,17 +172,46 @@ public class Registration extends JFrame {
 					ResultSet rsCheck = pstCheck.executeQuery();
 					
 					if(rsCheck.next()) {
-						JOptionPane.showMessageDialog(null, "VeÊ postoji korisnik sa brojem " + number + ".");
+						JOptionPane.showMessageDialog(null, "Veƒá postoji korisnik sa brojem " + number + ".");
 						return;
 					}
 
-					PreparedStatement pst = con.prepareStatement("insert into user(full_name, gender, number, years) values (?,?,?,?)");
+					PreparedStatement pst = con.prepareStatement("insert into user(full_name, gender, number, years, operator_id, administrator) values (?,?,?,?,?,?)");
 					
 					
 					pst.setString(1, fullName);
 					pst.setString(2, gender);
 					pst.setString(3, number);
 					pst.setInt(4, years);
+					
+					/*
+					 * Provjeravanje ako input u kojem se upisuje broj je du√Ö¬æi od 3
+					 * i dodavanje operator_id u bazi s odre√Ñ‚Äòenim id-om. Naravno ako taj 
+					 * broj i operater postoje.
+					 */
+					
+					
+
+					if (txtNumber.getText().length() >= 3) {
+						String operatorDigit = txtNumber.getText().substring(0, 3);
+
+						switch (operatorDigit) {
+						case "067":
+							pst.setInt(5, 2);
+							break;
+						case "068":
+							pst.setInt(5, 1);
+							break;
+						case "069":
+							pst.setInt(5, 3);
+							break;
+						default:
+							JOptionPane.showConfirmDialog(null, "Operater sa tim brojem ne postoji.");
+							return;
+						}
+					}
+					
+					pst.setInt(6, 0);
 							
 					pst.executeUpdate();
 					
@@ -195,7 +221,7 @@ public class Registration extends JFrame {
 					gender = "";
 					genderGroup.clearSelection();
 					
-					JOptionPane.showMessageDialog(null, "Uspjeöna registracija " + fullName + ".");
+					JOptionPane.showMessageDialog(null, "Uspje≈°na registracija " + fullName + ".");
 					txtFullName.requestFocus();
 					
 					
@@ -251,11 +277,11 @@ public class Registration extends JFrame {
 				String operatorDigit = txtNumber.getText().substring(0,3);
 				
 				if(operatorDigit.equals("067")) {
-					outputISP.setText("Vaö provajder je Telekom.");
+					outputISP.setText("Va≈° provajder je Telekom.");
 				} else if(operatorDigit.equals("068")) {
-					outputISP.setText("Vaö provajder je MTEL.");
+					outputISP.setText("Va≈° provajder je MTEL.");
 				} else if(operatorDigit.equals("069")) {
-					outputISP.setText("Vaö provajder je Telekom.");
+					outputISP.setText("Va≈° provajder je Telenor.");
 				} else {
 					outputISP.setText("Taj provajder ne postoji.");
 				}
