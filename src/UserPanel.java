@@ -169,6 +169,17 @@ public class UserPanel extends JFrame {
 				
 				String toNumber = txtNumberTo.getText();
 				String content = txtContent.getText();
+				
+				
+				/*
+				 * Provjera da korisnik ne moze da posalje poruku samom sebi
+				 */
+				
+				if(toNumber == Login.userNumber) {
+					JOptionPane.showMessageDialog(null, "Nemoguće je poslati poruku samom sebi.");
+					return;
+				}
+				
 								
 				try {
 										

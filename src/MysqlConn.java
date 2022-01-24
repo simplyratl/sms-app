@@ -20,7 +20,7 @@ public class MysqlConn {
 	    	
 	     // Class.forName("com.mysql.cj.jdbc.Driver");
 	      con = DriverManager.getConnection(url, username, password);
-	      System.out.println("Uspješna konekcija!");
+//	      System.out.println("Uspješna konekcija!");
 	      return con;
 
 	    } catch (SQLException ex) {

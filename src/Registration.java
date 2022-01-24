@@ -153,6 +153,14 @@ public class Registration extends JFrame {
 					return;
 				}
 				
+				/*
+				 * Testiranje da li je korisnik unio svoje puno ime i prezime.
+				 */
+				
+				if(!txtFullName.getText().contains(" ")) {
+					JOptionPane.showMessageDialog(null, "Morate staviti svoje puno ime i prezime.");
+					return;
+				}				
 
 				int years = Integer.parseInt(txtYears.getText());
 				String fullName = txtFullName.getText();
