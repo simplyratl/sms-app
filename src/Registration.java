@@ -31,7 +31,7 @@ import javax.swing.ButtonGroup;
 public class Registration extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField txtFullName;
+	private static JTextField txtFullName;
 	private JTextField txtNumber;
 	private JTextField txtYears;
 	private final ButtonGroup genderGroup = new ButtonGroup();
@@ -39,17 +39,15 @@ public class Registration extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	
+
 //	List<User> users = new LinkedList<User>();
-	
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 
-			
 			public void run() {
 				try {
-					if(MysqlConn.conn() == null) {
+					if (MysqlConn.conn() == null) {
 						return;
 					}
 					Registration frame = new Registration();
@@ -65,8 +63,7 @@ public class Registration extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	
-	
+
 	public Registration() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 630, 500);
@@ -74,18 +71,17 @@ public class Registration extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		Toolkit toolkit = getToolkit();
 		Dimension size = toolkit.getScreenSize();
-		setLocation(size.width/2 - getWidth()/2, size.height/2 - getHeight()/2);
-		
-		
+		setLocation(size.width / 2 - getWidth() / 2, size.height / 2 - getHeight() / 2);
+
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(51, 0, 153));
 		panel.setBounds(0, 0, 250, 480);
 		contentPane.add(panel);
 		panel.setLayout(null);
-		
+
 		Button loginButton = new Button("Uloguj se");
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -98,43 +94,44 @@ public class Registration extends JFrame {
 		panel.add(loginButton);
 		loginButton.setForeground(Color.WHITE);
 		loginButton.setBackground(new Color(51, 0, 153));
-		
+
 		JLabel lblRegistracija = new JLabel("REGISTRACIJA");
 		lblRegistracija.setForeground(Color.WHITE);
 		lblRegistracija.setFont(new Font("Dialog", Font.BOLD, 21));
 		lblRegistracija.setBounds(41, 420, 173, 28);
 		panel.add(lblRegistracija);
-		
-		JRadioButton selectMuski = new JRadioButton("Mu\u0161ki");
+
+		JRadioButton selectMuski = new JRadioButton("Muški");
 		genderGroup.add(selectMuski);
 		selectMuski.setBounds(281, 216, 86, 23);
 		contentPane.add(selectMuski);
-		
-		JRadioButton selectZenski = new JRadioButton("\u017Denski");
+
+		JRadioButton selectZenski = new JRadioButton("Ženski");
 		genderGroup.add(selectZenski);
 		selectZenski.setBounds(403, 216, 86, 23);
-		contentPane.add(selectZenski);	
-		
+		contentPane.add(selectZenski);
+
 		JLabel outputISP = new JLabel("");
 		outputISP.setBounds(281, 335, 318, 14);
 		contentPane.add(outputISP);
-		
+
 		Button registerButton = new Button("Registruj se");
 		registerButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	
-				
+			public void actionPerformed(ActionEvent e) {
+
 				String gender = null;
-				
-				if(selectMuski.isSelected()) {
+
+				if (selectMuski.isSelected()) {
 					gender = "Muski";
-				} else if(selectZenski.isSelected()){
+				} else if (selectZenski.isSelected()) {
 					gender = "Zenski";
 				}
-				
-				if(txtFullName.getText().equalsIgnoreCase("") || txtYears.getText().equalsIgnoreCase("") 
-						 || txtNumber.getText().equalsIgnoreCase("")) {
-					JOptionPane.showMessageDialog(null, "Morate unijeti svako polje vezano za registraciju registraciju");
-					
+
+				if (txtFullName.getText().equalsIgnoreCase("") || txtYears.getText().equalsIgnoreCase("")
+						|| txtNumber.getText().equalsIgnoreCase("")) {
+					JOptionPane.showMessageDialog(null,
+							"Morate unijeti svako polje vezano za registraciju registraciju");
+
 					txtFullName.setText("");
 					txtYears.setText("");
 					txtNumber.setText("");
@@ -142,8 +139,8 @@ public class Registration extends JFrame {
 					genderGroup.clearSelection();
 					return;
 				}
-				
-				if(outputISP.getText().equals("Taj provajder ne postoji.")) {
+
+				if (outputISP.getText().equals("Taj provajder ne postoji.")) {
 					JOptionPane.showMessageDialog(null, "Morate izabrati validnog provajdera.");
 					txtFullName.setText("");
 					txtYears.setText("");
@@ -152,57 +149,72 @@ public class Registration extends JFrame {
 					genderGroup.clearSelection();
 					return;
 				}
-				
-				if(txtNumber.getText().contains(" ")) {
+
+				if (txtNumber.getText().contains(" ")) {
 					txtNumber.setText(txtNumber.getText().replace(" ", ""));
 				}
-
 				
+				if(!testNumeric().equalsIgnoreCase("")) {
+					JOptionPane.showMessageDialog(null, "Godine su samo broj.");
+					return;
+				}
+
 				/*
 				 * Testiranje da li je korisnik unio svoje puno ime i prezime.
 				 */
-				
-				if(!txtFullName.getText().contains(" ")) {
+
+				if (!txtFullName.getText().contains(" ") && txtFullName.getText().length() > 5) {
 					JOptionPane.showMessageDialog(null, "Morate staviti svoje puno ime i prezime.");
 					return;
-				}				
+				}
 
-				int years = Integer.parseInt(txtYears.getText());
+				/*
+				 * Test da li je korisnik unio samo brojeve za godine.
+				 */
+
+				int years = 0;
+				try {
+					years = Integer.parseInt(txtYears.getText());
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(null, "Godine su samo broj.");
+					return;
+				}
+
 				String fullName = txtFullName.getText();
 				String number = txtNumber.getText();
-				
-				
+
 				try {
-					 Class.forName("com.mysql.cj.jdbc.Driver");
-					// Connection con = DriverManager.getConnection("jdbc:mysql://localhost/sms", "root","");
-					
-					// MySQLkonekcija	
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					// Connection con = DriverManager.getConnection("jdbc:mysql://localhost/sms",
+					// "root","");
+
+					// MySQLkonekcija
 					MysqlConn MysqlConn = new MysqlConn();
 					Connection con = MysqlConn.conn();
-										 
-					PreparedStatement pstCheck = con.prepareStatement("select full_name, number from user where number='" + number + "'");
-					
+
+					PreparedStatement pstCheck = con
+							.prepareStatement("select full_name, number from user where number='" + number + "'");
+
 					ResultSet rsCheck = pstCheck.executeQuery();
-					
-					if(rsCheck.next()) {
+
+					if (rsCheck.next()) {
 						JOptionPane.showMessageDialog(null, "Već postoji korisnik sa brojem " + number + ".");
 						return;
 					}
 
-					PreparedStatement pst = con.prepareStatement("insert into user(full_name, gender, number, years, operator_id, administrator) values (?,?,?,?,?,?)");
-					
-					
+					PreparedStatement pst = con.prepareStatement(
+							"insert into user(full_name, gender, number, years, operator_id, administrator) values (?,?,?,?,?,?)");
+
 					pst.setString(1, fullName);
 					pst.setString(2, gender);
 					pst.setString(3, number);
 					pst.setInt(4, years);
-					
+
 					/*
-					 * Provjeravanje ako input u kojem se upisuje broj je duži od 3
-					 * i dodavanje operator_id u bazi s određenim id-om. Naravno ako taj 
-					 * broj i operater postoje.
+					 * Provjeravanje ako input u kojem se upisuje broj je duži od 3 i dodavanje
+					 * operator_id u bazi s određenim id-om. Naravno ako taj broj i operater
+					 * postoje.
 					 */
-					
 
 					if (txtNumber.getText().length() >= 3) {
 						String operatorDigit = txtNumber.getText().substring(0, 3);
@@ -222,76 +234,80 @@ public class Registration extends JFrame {
 							return;
 						}
 					}
-					
+
 					pst.setInt(6, 0);
 					pst.executeUpdate();
-					
+
 					txtFullName.setText("");
 					txtYears.setText("");
 					txtNumber.setText("");
 					gender = "";
 					genderGroup.clearSelection();
-					
+
 					JOptionPane.showMessageDialog(null, "Uspješna registracija " + fullName + ".");
 					txtFullName.requestFocus();
-					
-					
+
 				} catch (ClassNotFoundException ex) {
 					JOptionPane.showMessageDialog(null, "ClassNotFound");
 				} catch (SQLException el) {
 					el.printStackTrace();
 					JOptionPane.showMessageDialog(null, "SQL error");
-				}				
+				}
 			}
 		});
 		registerButton.setForeground(new Color(255, 255, 255));
 		registerButton.setBackground(new Color(51, 0, 153));
 		registerButton.setBounds(356, 375, 179, 43);
 		contentPane.add(registerButton);
-		
+
 		JLabel lblImeIPrezime = new JLabel("Ime i Prezime *");
 		lblImeIPrezime.setFont(new Font("Dialog", Font.BOLD, 15));
 		lblImeIPrezime.setBounds(281, 36, 142, 18);
 		contentPane.add(lblImeIPrezime);
-		
+
 		txtFullName = new JTextField();
-		txtFullName.setBounds(281, 66, 318, 35);
+		txtFullName.setBounds(281, 67, 318, 35);
 		contentPane.add(txtFullName);
 		txtFullName.setColumns(10);
-		
+
 		JLabel lblBrojTelefona = new JLabel("Broj Telefona *");
 		lblBrojTelefona.setFont(new Font("Dialog", Font.BOLD, 15));
 		lblBrojTelefona.setBounds(281, 263, 142, 18);
 		contentPane.add(lblBrojTelefona);
-		
+
 		txtYears = new JTextField();
 		txtYears.setColumns(10);
 		txtYears.setBounds(281, 143, 318, 35);
 		contentPane.add(txtYears);
-		
+
 		JLabel lblGodine = new JLabel("Godine *");
 		lblGodine.setFont(new Font("Dialog", Font.BOLD, 15));
 		lblGodine.setBounds(281, 113, 142, 18);
 		contentPane.add(lblGodine);
-		
+
 		JLabel lblPol = new JLabel("Pol *");
 		lblPol.setFont(new Font("Dialog", Font.BOLD, 15));
 		lblPol.setBounds(281, 190, 142, 18);
 		contentPane.add(lblPol);
-		
+
 		txtNumber = new JTextField();
 		txtNumber.setColumns(10);
-		txtNumber.setBounds(281, 293, 318, 35);
+		txtNumber.setBounds(315, 289, 284, 35);
 		contentPane.add(txtNumber);
+
+		JLabel lblNewLabel = new JLabel("+382");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblNewLabel.setBounds(281, 294, 36, 23);
+		contentPane.add(lblNewLabel);
 		txtNumber.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
-			if(txtNumber.getText().length() >= 3) {
-				String operatorDigit = txtNumber.getText().substring(0,3);
-				
-				if(operatorDigit.equals("067")) {
+			if (txtNumber.getText().length() >= 3) {
+				String operatorDigit = txtNumber.getText().substring(0, 3);
+
+				if (operatorDigit.equals("067")) {
 					outputISP.setText("Vaš provajder je Telekom.");
-				} else if(operatorDigit.equals("068")) {
+				} else if (operatorDigit.equals("068")) {
 					outputISP.setText("Vaš provajder je MTEL.");
-				} else if(operatorDigit.equals("069")) {
+				} else if (operatorDigit.equals("069")) {
 					outputISP.setText("Vaš provajder je Telenor.");
 				} else {
 					outputISP.setText("Taj provajder ne postoji.");
@@ -300,21 +316,37 @@ public class Registration extends JFrame {
 				outputISP.setText("");
 			}
 		});
-		
-			
-	}
-	
-	private interface SimpleDocumentListener extends DocumentListener {
-	    void update(DocumentEvent e);
 
-	    default void insertUpdate(DocumentEvent e) {
-	        update(e);
-	    }
-	    default void removeUpdate(DocumentEvent e) {
-	        update(e);
-	    }
-	    default void changedUpdate(DocumentEvent e) {
-	        update(e);
-	    }
+	}
+
+	public static String testNumeric() {
+		char[] chars = txtFullName.getText().toCharArray();
+
+		StringBuilder sb = new StringBuilder();
+
+		for (char c : chars) {
+			if (Character.isDigit(c)) {
+				sb.append(c);
+			}
+		}
+		System.out.println(sb.toString());
+		return sb.toString();
+
+	}
+
+	private interface SimpleDocumentListener extends DocumentListener {
+		void update(DocumentEvent e);
+
+		default void insertUpdate(DocumentEvent e) {
+			update(e);
+		}
+
+		default void removeUpdate(DocumentEvent e) {
+			update(e);
+		}
+
+		default void changedUpdate(DocumentEvent e) {
+			update(e);
+		}
 	}
 }

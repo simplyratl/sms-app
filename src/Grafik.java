@@ -37,6 +37,8 @@ public class Grafik {
 	private static int br2 = 0;
 	
 	private static String column[] = {"POČETNI ČVOR","POVEZANI ČVOROVI"};
+	
+	private static boolean renderOperators = false;
 		
 /*
 |===============================================================================
@@ -211,11 +213,25 @@ public class Grafik {
 			if( bool == false ) {
 				link_e += "  X ";
 			} 
-					
-			while(result_getID.next()) { 
-			   link_e += " \n " + result_getID.getString("full_name") + "  - > ";
-		      		       
+			
+			
+			/*
+			 * Prikazivanje svih korisnika po u grafu. S obizrom da ako se prikazuju provajderi
+			 * onda to nije graf, jer ne mozemo mijesati operatere i korisnike.
+			 * Da bi se napravila razlika izmedju njih dvoje, ispisat ce se zarez u slucaju operatera
+			 * a normalni prikaz grafa preko lista u slucaju korisnika.
+			 */
+			
+			if(renderOperators) {
+				while(result_getID.next()) { 
+					   link_e += " \n " + result_getID.getString("full_name") + " , ";
+				}
+			} else {
+				while(result_getID.next()) { 
+					   link_e += " \n " + result_getID.getString("full_name") + "  - > "; 		       
+				}
 			}
+			
 			
 			if(link_e.endsWith("  - > ")) {
 				int last_char = link_e.lastIndexOf("  - > ");
@@ -239,14 +255,15 @@ public class Grafik {
 			return link_e;
 			
 		} catch (Exception e) {
-			
+			System.out.println(e);
+			return "";
 		}
-		
-		return "";
-		
 	}
 	
 	public static void showGraphicOperateri() {
+		
+		renderOperators = true;
+		
     	// System.out.println( getOperators() );
     	 for(int i=0; i < getOperators().size(); i++) {
     	     String str = getOperators().get(i).trim();
@@ -294,6 +311,8 @@ public class Grafik {
 	
 	public static void showGraphicKorisnici() { 
 	   	// System.out.println( getUsers() );
+		renderOperators = false;
+		
 	   	for(int i=0; i < getUsers().size(); i++) {
 	   	     String str = getUsers().get(i).trim();
 	   	     String[] row_arr = str.split("[,|]+"); 

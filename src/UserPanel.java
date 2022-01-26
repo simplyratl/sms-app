@@ -162,7 +162,7 @@ public class UserPanel extends JFrame {
 		txtContent.setBounds(12, 341, 322, 207);
 		contentPane.add(txtContent);
 		
-		Button button = new Button("Po\u0161alji");
+		Button button = new Button("Pošalji");
 		button.setActionCommand("");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -180,7 +180,6 @@ public class UserPanel extends JFrame {
 					return;
 				}
 				
-								
 				try {
 										
 /* ??? */				//	Class.forName("com.mysql.cj.jdbc.Driver");
