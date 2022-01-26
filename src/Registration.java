@@ -8,6 +8,8 @@ import java.awt.Toolkit;
 import java.awt.desktop.UserSessionEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,6 +26,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.sql.*;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
@@ -163,7 +166,7 @@ public class Registration extends JFrame {
 				 * Testiranje da li je korisnik unio svoje puno ime i prezime.
 				 */
 
-				if (!txtFullName.getText().contains(" ") && txtFullName.getText().length() > 5) {
+				if (!txtFullName.getText().contains(" ") && txtFullName.getText().length() > 3) {
 					JOptionPane.showMessageDialog(null, "Morate staviti svoje puno ime i prezime.");
 					return;
 				}
@@ -269,6 +272,16 @@ public class Registration extends JFrame {
 		txtFullName.setBounds(281, 67, 318, 35);
 		contentPane.add(txtFullName);
 		txtFullName.setColumns(10);
+		txtFullName.addKeyListener(new KeyAdapter() {
+	        @Override
+	        public void keyTyped(KeyEvent e) {
+	            char c = e.getKeyChar();
+	            
+	            if(Character.isDigit(c)) {
+	            	e.consume();
+	            }
+	        }
+	    });
 
 		JLabel lblBrojTelefona = new JLabel("Broj Telefona *");
 		lblBrojTelefona.setFont(new Font("Dialog", Font.BOLD, 15));
@@ -279,6 +292,19 @@ public class Registration extends JFrame {
 		txtYears.setColumns(10);
 		txtYears.setBounds(281, 143, 318, 35);
 		contentPane.add(txtYears);
+		txtYears.addKeyListener(new KeyAdapter() {
+	        @Override
+	        public void keyTyped(KeyEvent e) {
+	            if (txtYears.getText().length() >= 3 ) // limitranje da korisnik moze da unese samo 8 karaktera
+	                e.consume();
+	            
+	            char c = e.getKeyChar();
+	            
+	            if(!Character.isDigit(c)) {
+	            	e.consume();
+	            }
+	        }
+	    });
 
 		JLabel lblGodine = new JLabel("Godine *");
 		lblGodine.setFont(new Font("Dialog", Font.BOLD, 15));
@@ -294,11 +320,19 @@ public class Registration extends JFrame {
 		txtNumber.setColumns(10);
 		txtNumber.setBounds(315, 289, 284, 35);
 		contentPane.add(txtNumber);
-
-		JLabel lblNewLabel = new JLabel("+382");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel.setBounds(281, 294, 36, 23);
-		contentPane.add(lblNewLabel);
+		txtNumber.addKeyListener(new KeyAdapter() {
+	        @Override
+	        public void keyTyped(KeyEvent e) {
+	            if (txtNumber.getText().length() > 8 ) // limitranje da korisnik moze da unese samo 8 karaktera
+	                e.consume();
+	            
+	            char c = e.getKeyChar();
+	            
+	            if(!Character.isDigit(c)) {
+	            	e.consume();
+	            }
+	        }
+	    });
 		txtNumber.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
 			if (txtNumber.getText().length() >= 3) {
 				String operatorDigit = txtNumber.getText().substring(0, 3);
@@ -316,6 +350,12 @@ public class Registration extends JFrame {
 				outputISP.setText("");
 			}
 		});
+		
+
+		JLabel lblNewLabel = new JLabel("+382");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblNewLabel.setBounds(281, 294, 36, 23);
+		contentPane.add(lblNewLabel);
 
 	}
 
@@ -329,7 +369,6 @@ public class Registration extends JFrame {
 				sb.append(c);
 			}
 		}
-		System.out.println(sb.toString());
 		return sb.toString();
 
 	}

@@ -255,7 +255,7 @@ public class Grafik {
 			return link_e;
 			
 		} catch (Exception e) {
-			System.out.println(e);
+			System.out.println(e + " ovdje je exception");
 			return "";
 		}
 	}
