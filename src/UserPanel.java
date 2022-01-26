@@ -175,7 +175,7 @@ public class UserPanel extends JFrame {
 				 * Provjera da korisnik ne moze da posalje poruku samom sebi
 				 */
 				
-				if(toNumber == Login.userNumber) {
+				if(toNumber.equals(Login.userNumber)) {
 					JOptionPane.showMessageDialog(null, "Nemoguće je poslati poruku samom sebi.");
 					return;
 				}

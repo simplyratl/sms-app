@@ -36,7 +36,7 @@ public class Grafik {
 	private static String arrayRowKorisnici[][] = new String[getUsers().size()][2];
 	private static int br2 = 0;
 	
-	private static String column[] = {"POÈETNI ÈVOR","POVEZANI ÈVOROVI"};
+	private static String column[] = {"POČETNI ČVOR","POVEZANI ČVOROVI"};
 		
 /*
 |===============================================================================
@@ -45,8 +45,13 @@ public class Grafik {
 | 
 |
 */	
+	
 		private static ArrayList<String> getOperators()
-		{
+		{		
+			if(MysqlConn.conn() == null) {
+				return null;
+			}
+			
 			ArrayList<String> arr_list = new ArrayList<String>();
 			 						
 			try {	
@@ -63,11 +68,8 @@ public class Grafik {
 				return arr_list;
 								
 			} catch (Exception e) {
-				
-				
+				return null;
 			}
-			
-			return null;
 			
 		}	
 		
@@ -81,6 +83,10 @@ public class Grafik {
 				
 		private static ArrayList<String> getUsers()
 		{
+			if(MysqlConn.conn() == null) {
+				return null;
+			}
+			
 			ArrayList<String> arr_list = new ArrayList<String>();
 			try {	
 				// MySQLkonekcija	
@@ -97,12 +103,12 @@ public class Grafik {
 						
 			} catch (Exception e) {
 						
+				return null;
 						
 			}
-			return null;
 					
 		}	
-				
+
 	
 /*
 |===============================================================================
@@ -123,7 +129,8 @@ public class Grafik {
 				getID.setString(1, id);
 				ResultSet result_getID = getID.executeQuery();
 				
-				if(result_getID.next()) {    					
+				if(result_getID.next()) {
+					column = new String[]{"IME OPERATERA","KORISNICI OPERATERA"};
 					return result_getID.getString("name");
 		
 				} 
@@ -158,7 +165,9 @@ public class Grafik {
 */
 	private static String getLink(String id, String ind)
 	{
-				
+		column = new String[]{"POČETNI ČVOR","POVEZANI ČVOROVI"};
+		
+		
 		// Ime prvog cvora
 		String first_edge = "";
 		// String koji oznacava listu povezanih cvorova 
@@ -250,7 +259,10 @@ public class Grafik {
  		String[][] data2 = arrayRowOperateri;  	
      	tableGraph1 = new JTable(data2, column);
      	tableGraph1.setFillsViewportHeight(true);
+     	
+     	
      	// Razmak izmedju teksta i lijeve i desne ivice(15px)
+     	
      	tableGraph1.setIntercellSpacing(new Dimension(15,0));
      	tableGraph1.setRowHeight(30);
      	tableGraph1.setMinimumSize(new Dimension(964, 0));
@@ -336,6 +348,10 @@ public class Grafik {
 	
     public static void main(String[] args)
     { 	
+		if(MysqlConn.conn() == null) {
+			return;
+		}
+    	
     	String arg = null;
     	for(String sm : args) { 
     		arg = sm;

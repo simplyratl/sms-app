@@ -153,6 +153,11 @@ public class Registration extends JFrame {
 					return;
 				}
 				
+				if(txtNumber.getText().contains(" ")) {
+					txtNumber.setText(txtNumber.getText().replace(" ", ""));
+				}
+
+				
 				/*
 				 * Testiranje da li je korisnik unio svoje puno ime i prezime.
 				 */
@@ -193,11 +198,10 @@ public class Registration extends JFrame {
 					pst.setInt(4, years);
 					
 					/*
-					 * Provjeravanje ako input u kojem se upisuje broj je duÅ¾i od 3
-					 * i dodavanje operator_id u bazi s odreÄ‘enim id-om. Naravno ako taj 
+					 * Provjeravanje ako input u kojem se upisuje broj je duži od 3
+					 * i dodavanje operator_id u bazi s određenim id-om. Naravno ako taj 
 					 * broj i operater postoje.
 					 */
-					
 					
 
 					if (txtNumber.getText().length() >= 3) {
@@ -220,7 +224,6 @@ public class Registration extends JFrame {
 					}
 					
 					pst.setInt(6, 0);
-							
 					pst.executeUpdate();
 					
 					txtFullName.setText("");
