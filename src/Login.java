@@ -95,6 +95,7 @@ public class Login extends JFrame{
 				dispose();
 			}
 		});
+		
 		registerButton.setBounds(73, 173, 110, 33);
 		panel.add(registerButton);
 		registerButton.setForeground(Color.WHITE);

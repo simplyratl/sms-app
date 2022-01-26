@@ -155,7 +155,7 @@ public class Inbox extends JFrame{
 		lblPoruke.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblPoruke);
 		
-/*		
+/*
 		message_panel = new JPanel();
 	//	message_panel.setBackground(Color.WHITE);
 		message_panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -165,7 +165,7 @@ public class Inbox extends JFrame{
 		//getContentPane().add(message_panel);
 	  //  contentPane.add(message_panel);
 		
-*/	
+*/
 		
 				
 		
@@ -180,6 +180,7 @@ public class Inbox extends JFrame{
 			JScrollPane sent_msg = new JScrollPane(jt);  
 			jt.getColumnModel().getColumn(1).setPreferredWidth(250);
 			jt.getColumnModel().getColumn(0).setPreferredWidth(150);
+			jt.setRowHeight(jt.getRowHeight() + 15);
 			
 			String[][] data_received_msg = Models.getReceivedMsg();
 			JTable jt2 = new JTable(data_received_msg,column);    
@@ -187,6 +188,7 @@ public class Inbox extends JFrame{
 			JScrollPane received_msg = new JScrollPane(jt2);  
 			jt2.getColumnModel().getColumn(1).setPreferredWidth(250);
 			jt2.getColumnModel().getColumn(0).setPreferredWidth(150);
+			jt2.setRowHeight(jt2.getRowHeight() + 15);
 			
 		    JTabbedPane tp = new JTabbedPane();  
 		    tp.setBounds(10,141,320,400); 

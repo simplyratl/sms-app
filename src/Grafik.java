@@ -190,8 +190,7 @@ public class Grafik {
 			sql_where  = " (user_sender_id = ? AND user.id = sms.user_receiver_id AND user_sender_id != user.id) OR "
 					   + "(sms.user_receiver_id = ? AND user.id = sms.user_sender_id AND sms.user_receiver_id != user.id) ";
 			
-			first_edge = getEdgeName(id, "user").toUpperCase();
-			
+			first_edge = getEdgeName(id, "user").toUpperCase();	
 		}
 			
 		//link_e += first_edge.toUpperCase() + "  =  ";
@@ -224,7 +223,7 @@ public class Grafik {
 			
 			if(renderOperators) {
 				while(result_getID.next()) { 
-					   link_e += " \n " + result_getID.getString("full_name") + " , ";
+					   link_e += " \n " + result_getID.getString("full_name") + " ,";
 				}
 			} else {
 				while(result_getID.next()) { 
@@ -236,8 +235,12 @@ public class Grafik {
 			if(link_e.endsWith("  - > ")) {
 				int last_char = link_e.lastIndexOf("  - > ");
 				link_e = link_e.substring(0, last_char);
-				
+			} else {
+				int last_char = link_e.lastIndexOf(" ,");
+				link_e = link_e.substring(0, last_char);
 			}
+			
+			
 			if(ind == "") {
 				edge_links += link_e + "\n\n";
 				arrayRowOperateri[br1][0] = first_edge;
@@ -255,6 +258,14 @@ public class Grafik {
 			return link_e;
 			
 		} catch (Exception e) {
+			
+			/*
+			 * ---------------------------------------------------------------
+			 * Da znas daje ti error, vidjet ces stavio sam u konzolu da se ispise
+			 * nisam znao na koji nacin da rijesim error, ne znam odakle iskace.
+			 * ---------------------------------------------------------------
+			 */
+			
 			System.out.println(e + " ovdje je exception");
 			return "";
 		}
@@ -278,7 +289,7 @@ public class Grafik {
      	tableGraph1.setFillsViewportHeight(true);
      	
      	
-     	// Razmak izmedju teksta i lijeve i desne ivice(15px)
+//     	 Razmak izmedju teksta i lijeve i desne ivice(15px)
      	
      	tableGraph1.setIntercellSpacing(new Dimension(15,0));
      	tableGraph1.setRowHeight(30);
@@ -299,6 +310,7 @@ public class Grafik {
 			showSP2 = true;
 			showSP1 = false;
 		}
+     	
 		scrollPanel1 = new JScrollPane(); 
 		scrollPanel1 = new JScrollPane(tableGraph1); 
 		scrollPanel1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);

@@ -157,11 +157,6 @@ public class Registration extends JFrame {
 					txtNumber.setText(txtNumber.getText().replace(" ", ""));
 				}
 				
-				if(!testNumeric().equalsIgnoreCase("")) {
-					JOptionPane.showMessageDialog(null, "Godine su samo broj.");
-					return;
-				}
-
 				/*
 				 * Testiranje da li je korisnik unio svoje puno ime i prezime.
 				 */
@@ -295,7 +290,7 @@ public class Registration extends JFrame {
 		txtYears.addKeyListener(new KeyAdapter() {
 	        @Override
 	        public void keyTyped(KeyEvent e) {
-	            if (txtYears.getText().length() >= 3 ) // limitranje da korisnik moze da unese samo 8 karaktera
+	            if (txtYears.getText().length() >= 3 ) // limitranje da korisnik moze da unese samo 3 karaktera
 	                e.consume();
 	            
 	            char c = e.getKeyChar();
@@ -356,20 +351,6 @@ public class Registration extends JFrame {
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblNewLabel.setBounds(281, 294, 36, 23);
 		contentPane.add(lblNewLabel);
-
-	}
-
-	public static String testNumeric() {
-		char[] chars = txtFullName.getText().toCharArray();
-
-		StringBuilder sb = new StringBuilder();
-
-		for (char c : chars) {
-			if (Character.isDigit(c)) {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
 
 	}
 
