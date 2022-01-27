@@ -177,6 +177,7 @@ public class Inbox extends JFrame{
 			String[][] data_sent_msg = Models.getSendMsg();
 			String column[] = {"KORISNIK","PORUKA","DATUM"};   
 			JTable jt = new JTable(data_sent_msg,column);        
+			jt.setEnabled(false);
 			JScrollPane sent_msg = new JScrollPane(jt);  
 			jt.getColumnModel().getColumn(1).setPreferredWidth(250);
 			jt.getColumnModel().getColumn(0).setPreferredWidth(150);
@@ -184,6 +185,7 @@ public class Inbox extends JFrame{
 			
 			String[][] data_received_msg = Models.getReceivedMsg();
 			JTable jt2 = new JTable(data_received_msg,column);    
+			jt2.setEnabled(false);
 			//jt.setBounds(0,0,200,300);          
 			JScrollPane received_msg = new JScrollPane(jt2);  
 			jt2.getColumnModel().getColumn(1).setPreferredWidth(250);

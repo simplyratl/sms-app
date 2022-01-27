@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -121,7 +122,6 @@ public class Registration extends JFrame {
 		Button registerButton = new Button("Registruj se");
 		registerButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				String gender = null;
 
 				if (selectMuski.isSelected()) {
@@ -129,11 +129,29 @@ public class Registration extends JFrame {
 				} else if (selectZenski.isSelected()) {
 					gender = "Zenski";
 				}
+				
+				 String specialCharactersString = "!@#$%&*()'+,-./:;<=>?[]^_`{|}";
+				 String illegalCharacters = "";
+				
+				for (int i = 0; i < txtFullName.getText().length(); i++) {
+					char ch = txtFullName.getText().charAt(i);
+					
+					if(specialCharactersString.contains(Character.toString(ch))) {
+						illegalCharacters += Character.toString(ch) + ", ";
+					}
+				}
+				
+				if(illegalCharacters.length() >= 1) {
+					int last_comma = illegalCharacters.lastIndexOf(", ");
+					illegalCharacters = illegalCharacters.substring(0, last_comma);
+					JOptionPane.showMessageDialog(null, "Ime ne smije da sadrži specijalne karaktere " + illegalCharacters);
+					return;
+				}
 
 				if (txtFullName.getText().equalsIgnoreCase("") || txtYears.getText().equalsIgnoreCase("")
 						|| txtNumber.getText().equalsIgnoreCase("")) {
 					JOptionPane.showMessageDialog(null,
-							"Morate unijeti svako polje vezano za registraciju registraciju");
+							"Morate unijeti svako polje vezano za registraciju.");
 
 					txtFullName.setText("");
 					txtYears.setText("");
@@ -145,11 +163,7 @@ public class Registration extends JFrame {
 
 				if (outputISP.getText().equals("Taj provajder ne postoji.")) {
 					JOptionPane.showMessageDialog(null, "Morate izabrati validnog provajdera.");
-					txtFullName.setText("");
-					txtYears.setText("");
 					txtNumber.setText("");
-					gender = "";
-					genderGroup.clearSelection();
 					return;
 				}
 
@@ -244,6 +258,38 @@ public class Registration extends JFrame {
 
 					JOptionPane.showMessageDialog(null, "Uspješna registracija " + fullName + ".");
 					txtFullName.requestFocus();
+					
+					/*
+					 * Podupit za racun, ispisivanje racuna i trazenje id korisnika koji se trenutno
+					 * registruje.
+					 */
+					
+					PreparedStatement getLastInsertedID = con.prepareStatement("SELECT * FROM user ORDER BY ID DESC LIMIT 1");
+					
+					ResultSet rsLastInsertedID = getLastInsertedID.executeQuery();
+					
+					PreparedStatement writeBill = con.prepareStatement("INSERT INTO bill(balance, user_id) values(?,?)");
+					
+					Random random = new Random();
+					double min = 0;
+					double max = 150;
+					
+					int idRegisteredUser = -1;						
+					if(rsLastInsertedID.next()) {
+						idRegisteredUser = rsLastInsertedID.getInt("id");
+					}
+					
+					double bill = min + (max - min) * random.nextDouble(); 
+					
+					DecimalFormat df = new DecimalFormat("#.##");
+					bill = Double.valueOf(df.format(bill));
+					
+					writeBill.setDouble(1, bill);
+					writeBill.setInt(2, idRegisteredUser);
+					
+					writeBill.executeUpdate();
+					
+					
 
 				} catch (ClassNotFoundException ex) {
 					JOptionPane.showMessageDialog(null, "ClassNotFound");
