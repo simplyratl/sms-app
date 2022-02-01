@@ -16,6 +16,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.ArrayUtils; 
+
+//import java.util.Arrays;
 
 public class Grafik {
 
@@ -24,21 +27,34 @@ public class Grafik {
 	
 	private static JTable tableGraph1;
 	private static JTable tableGraph2;
+	private static JTable tableGraph3;
 	private static JFrame prozor;
+	private static JFrame prozor2;
 	
+	private static Boolean btnOperateriClickEvent = true;
+	private static Boolean btnKorisniciClickEvent = true;
+	private static Boolean btnAllGraphClickEvent = true;
+	private static Boolean btnCreateGraphClickEvent = true;
+	
+	// Operateri
 	private static JScrollPane scrollPanel1;
 	private static Boolean showSP1 = false;
+	// Korisnici
 	private static JScrollPane scrollPanel2;
 	private static Boolean showSP2 = false;
+	// Svi
+	private static JScrollPane scrollPanel3;
+	private static Boolean showSP3 = false;
+	// Kreiranje Grafa
+	private static JScrollPane scrollPanel4;
+	private static Boolean showSP4 = false;
 	
 	private static String arrayRowOperateri[][] = new String[ getOperators().size() ][2];
 	private static int br1 = 0;
 	private static String arrayRowKorisnici[][] = new String[getUsers().size()][2];
 	private static int br2 = 0;
 	
-	private static String column[] = {"POÄŒETNI ÄŒVOR","POVEZANI ÄŒVOROVI"};
-	
-	private static boolean renderOperators = false;
+	private static String column[] = {"POÈETNI ÈVOR","POVEZANI ÈVOROVI"};
 		
 /*
 |===============================================================================
@@ -47,13 +63,8 @@ public class Grafik {
 | 
 |
 */	
-	
 		private static ArrayList<String> getOperators()
-		{		
-			if(MysqlConn.conn() == null) {
-				return null;
-			}
-			
+		{
 			ArrayList<String> arr_list = new ArrayList<String>();
 			 						
 			try {	
@@ -70,8 +81,11 @@ public class Grafik {
 				return arr_list;
 								
 			} catch (Exception e) {
+				
 				return null;
 			}
+			
+			
 			
 		}	
 		
@@ -85,10 +99,6 @@ public class Grafik {
 				
 		private static ArrayList<String> getUsers()
 		{
-			if(MysqlConn.conn() == null) {
-				return null;
-			}
-			
 			ArrayList<String> arr_list = new ArrayList<String>();
 			try {	
 				// MySQLkonekcija	
@@ -105,12 +115,12 @@ public class Grafik {
 						
 			} catch (Exception e) {
 						
-				return null;
-						
+				return null;		
 			}
+		
 					
 		}	
-
+				
 	
 /*
 |===============================================================================
@@ -131,8 +141,7 @@ public class Grafik {
 				getID.setString(1, id);
 				ResultSet result_getID = getID.executeQuery();
 				
-				if(result_getID.next()) {
-					column = new String[]{"IME OPERATERA","KORISNICI OPERATERA"};
+				if(result_getID.next()) {    					
 					return result_getID.getString("name");
 		
 				} 
@@ -150,7 +159,7 @@ public class Grafik {
 			
 		} catch (Exception e) {
 			
-			
+			return "";
 		}
 		
 		return "";
@@ -167,20 +176,24 @@ public class Grafik {
 */
 	private static String getLink(String id, String ind)
 	{
-		column = new String[]{"POÄŒETNI ÄŒVOR","POVEZANI ÄŒVOROVI"};
-		
-		
+				
 		// Ime prvog cvora
 		String first_edge = "";
 		// String koji oznacava listu povezanih cvorova 
 		String link_e = "";
 		
+		String sql_select = "";
+		String sql_from   = "";
+		String sql_where  = "";
+		
 		// Definisani uslovi ako se trazi veza do susjednog cvora koji
 		// oznacava operatera, ind = ""(inicijalna vrijednost)
-		String sql_select = " id, full_name ";
-		String sql_from   = " user ";
-		String sql_where  = " operator_id = ? ";
-		first_edge = getEdgeName(id, "").toUpperCase();    
+		if(ind == "") {
+			sql_select = " id, full_name ";
+			sql_from   = " user ";
+			sql_where  = " operator_id = ? ";
+			first_edge = getEdgeName(id, "").toUpperCase();  
+		}
 		
 		// Definisani uslovi ako se trazi veza do susjednog cvora koji 
 		// oznacava korisnika, ind = "user"
@@ -190,7 +203,8 @@ public class Grafik {
 			sql_where  = " (user_sender_id = ? AND user.id = sms.user_receiver_id AND user_sender_id != user.id) OR "
 					   + "(sms.user_receiver_id = ? AND user.id = sms.user_sender_id AND sms.user_receiver_id != user.id) ";
 			
-			first_edge = getEdgeName(id, "user").toUpperCase();	
+			first_edge = getEdgeName(id, "user").toUpperCase();
+			
 		}
 			
 		//link_e += first_edge.toUpperCase() + "  =  ";
@@ -212,35 +226,17 @@ public class Grafik {
 			if( bool == false ) {
 				link_e += "  X ";
 			} 
-			
-			
-			/*
-			 * Prikazivanje svih korisnika po u grafu. S obizrom da ako se prikazuju provajderi
-			 * onda to nije graf, jer ne mozemo mijesati operatere i korisnike.
-			 * Da bi se napravila razlika izmedju njih dvoje, ispisat ce se zarez u slucaju operatera
-			 * a normalni prikaz grafa preko lista u slucaju korisnika.
-			 */
-			
-			if(renderOperators) {
-				while(result_getID.next()) { 
-					   link_e += " \n " + result_getID.getString("full_name") + " ,";
-				}
-			} else {
-				while(result_getID.next()) { 
-					   link_e += " \n " + result_getID.getString("full_name") + "  - > "; 		       
-				}
+					
+			while(result_getID.next()) { 
+			   link_e += " \n " + result_getID.getString("full_name") + "  - > ";
+		      		       
 			}
-			
 			
 			if(link_e.endsWith("  - > ")) {
 				int last_char = link_e.lastIndexOf("  - > ");
 				link_e = link_e.substring(0, last_char);
-			} else {
-				int last_char = link_e.lastIndexOf(" ,");
-				link_e = link_e.substring(0, last_char);
+				
 			}
-			
-			
 			if(ind == "") {
 				edge_links += link_e + "\n\n";
 				arrayRowOperateri[br1][0] = first_edge;
@@ -258,23 +254,12 @@ public class Grafik {
 			return link_e;
 			
 		} catch (Exception e) {
-			
-			/*
-			 * ---------------------------------------------------------------
-			 * Da znas daje ti error, vidjet ces stavio sam u konzolu da se ispise
-			 * nisam znao na koji nacin da rijesim error, ne znam odakle iskace.
-			 * ---------------------------------------------------------------
-			 */
-			
-			System.out.println(e + " ovdje je exception");
 			return "";
 		}
+				
 	}
 	
 	public static void showGraphicOperateri() {
-		
-		renderOperators = true;
-		
     	// System.out.println( getOperators() );
     	 for(int i=0; i < getOperators().size(); i++) {
     	     String str = getOperators().get(i).trim();
@@ -284,47 +269,44 @@ public class Grafik {
     	     getLink(row_arr[0], "");
     	 } 
     	  
- 		String[][] data2 = arrayRowOperateri;  	
-     	tableGraph1 = new JTable(data2, column);
+ 		String[][] data1 = arrayRowOperateri;  	
+     	tableGraph1 = new JTable(data1, column);
      	tableGraph1.setFillsViewportHeight(true);
-     	
-     	
-//     	 Razmak izmedju teksta i lijeve i desne ivice(15px)
-     	
+     	// Razmak izmedju teksta i lijeve i desne ivice(15px)
      	tableGraph1.setIntercellSpacing(new Dimension(15,0));
      	tableGraph1.setRowHeight(30);
-     	tableGraph1.setMinimumSize(new Dimension(964, 0));
-     	tableGraph1.setMaximumSize(new Dimension(964, 0));
-     	tableGraph1.setPreferredSize(new Dimension(964, 400));
+     	tableGraph1.setMinimumSize(new Dimension(970, 700));
+     	tableGraph1.setMaximumSize(new Dimension(970, 700));
+     	tableGraph1.setPreferredSize(new Dimension(970, 700));
      	tableGraph1.setEnabled(false);
      	tableGraph1.getColumnModel().getColumn(0).setPreferredWidth(170);
      	tableGraph1.getColumnModel().getColumn(0).setMaxWidth(220);
      	
-     	
+     	if (showSP1 == true ) {
+			prozor.getContentPane().remove(scrollPanel1);
+			
+		}
      	if( showSP2 == true ) {
 			prozor.getContentPane().remove(scrollPanel2);
-			showSP1 = true;
 			showSP2 = false;
-		} else if (showSP1 == true ) {
-			prozor.getContentPane().remove(scrollPanel1);
-			showSP2 = true;
-			showSP1 = false;
+		} 
+     	if( showSP3 == true ) {
+			prozor.getContentPane().remove(scrollPanel3);
+			showSP3 = false;
 		}
-     	
+     	showSP1 = true;
 		scrollPanel1 = new JScrollPane(); 
 		scrollPanel1 = new JScrollPane(tableGraph1); 
 		scrollPanel1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
  	//	scrollPanel1.setPreferredSize(new Dimension(964, 400));
  	//	scrollPanel1.setMaximumSize(new Dimension(964, 400));
- 		scrollPanel1.setBounds(20,130,970,400); 
- 		prozor.getContentPane().add(scrollPanel1);
+ 		scrollPanel1.setBounds(20,130,970,500); 
+ 		prozor.getContentPane().add(scrollPanel1);  
      	
 	}
 	
 	public static void showGraphicKorisnici() { 
 	   	// System.out.println( getUsers() );
-		renderOperators = false;
-		
 	   	for(int i=0; i < getUsers().size(); i++) {
 	   	     String str = getUsers().get(i).trim();
 	   	     String[] row_arr = str.split("[,|]+"); 
@@ -334,132 +316,271 @@ public class Grafik {
 	   	     
 	   	} 
 	   	 
-    	String[][] data1 = arrayRowKorisnici;  	
-    	tableGraph2 = new JTable(data1, column);
+    	String[][] data2 = arrayRowKorisnici;  	
+    	tableGraph2 = new JTable(data2, column);
     	// Razmak izmedju teksta i lijeve i desne ivice(15px)
     	tableGraph2.setIntercellSpacing(new Dimension(15,0));
     	tableGraph2.setRowHeight(30);
-    	tableGraph2.setPreferredScrollableViewportSize(new Dimension(964, 400));
-    	tableGraph2.setMinimumSize(new Dimension(964, 0));
-    	tableGraph2.setMaximumSize(new Dimension(964, 0));
-    	tableGraph2.setPreferredSize(new Dimension(964, 400));
+    	tableGraph2.setMinimumSize(new Dimension(970, 700));
+    	tableGraph2.setMaximumSize(new Dimension(970, 700));
+    	tableGraph2.setPreferredSize(new Dimension(970, 700));
     	tableGraph2.setEnabled(false);
     	tableGraph2.getColumnModel().getColumn(0).setPreferredWidth(170);
     	tableGraph2.getColumnModel().getColumn(0).setMaxWidth(220);
     //	tableGraph.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
     	tableGraph2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     	
-    	
     	if (showSP1 == true ) {
 			prozor.getContentPane().remove(scrollPanel1);
-			showSP2 = true;
 			showSP1 = false;
-		} else if( showSP2 == true ) {
+		}  
+    	if( showSP2 == true ) {
 			prozor.getContentPane().remove(scrollPanel2);
-			showSP1 = true;
-			showSP2 = false;
+	
 		}
-		scrollPanel2 = new JScrollPane(); 			
+    	if( showSP3 == true ) {
+			prozor.getContentPane().remove(scrollPanel3);
+			showSP3 = false;
+		}
+    	showSP2 = true; 			
 		scrollPanel2 = new JScrollPane(tableGraph2); 
 		scrollPanel2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
- 		scrollPanel2.setBounds(20,130,970,400); 
+ 		scrollPanel2.setBounds(20,130,970,500); 
  		prozor.getContentPane().add(scrollPanel2);
-    		
+ 			 		
+ 		
 	} 
 	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
-	public static void showGraphicAll() {
-		showGraphicOperateri();
-		showGraphicKorisnici();
-	}
-		    
 	
+	public static void showGraphicAll() {
+		
+		for(int i=0; i < getOperators().size(); i++) {
+	   	     String str = getOperators().get(i).trim();
+	   	     String[] row_arr = str.split("[,|]+"); 
+	   	     // row_arr[0] - ID Operatera
+	   	     // row_arr[1] - Naziv Operatera
+	   	     getLink(row_arr[0], "");
+	   	} 
+		
+		for(int i=0; i < getUsers().size(); i++) {
+	   	     String str = getUsers().get(i).trim();
+	   	     String[] row_arr = str.split("[,|]+"); 
+	   	     // row_arr[0] - ID Korisnika
+	   	     // row_arr[1] - Ime Korisnika
+	   	     getLink(row_arr[0], "user");
+	   	     
+	   	} 
+				
+		String[][] data3 = ArrayUtils.addAll(arrayRowOperateri, arrayRowKorisnici);
+		
+     	tableGraph3 = new JTable(data3, column);
+     	tableGraph3.setFillsViewportHeight(true);
+     	// Razmak izmedju teksta i lijeve i desne ivice(15px)
+     	tableGraph3.setIntercellSpacing(new Dimension(15,0));
+     	tableGraph3.setRowHeight(30);
+     	tableGraph3.setMinimumSize(new Dimension(970, 700));
+     	tableGraph3.setMaximumSize(new Dimension(970, 700));
+     	tableGraph3.setPreferredSize(new Dimension(970, 700));
+     	tableGraph3.setEnabled(false);
+     	tableGraph3.getColumnModel().getColumn(0).setPreferredWidth(170);
+     	tableGraph3.getColumnModel().getColumn(0).setMaxWidth(220);
+		
+     	if (showSP1 == true ) {
+			prozor.getContentPane().remove(scrollPanel1);	
+			showSP1 = false;
+		}
+     	if( showSP2 == true ) {
+			prozor.getContentPane().remove(scrollPanel2);	
+			showSP2 = false;
+		} 
+     	if (showSP3 == true ) {
+			prozor.getContentPane().remove(scrollPanel1);	
+     	
+     	}	
+     	showSP3 = true;
+		scrollPanel3 = new JScrollPane(tableGraph3); 
+		scrollPanel3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+ 	//	scrollPanel1.setPreferredSize(new Dimension(964, 400));
+ 	//	scrollPanel1.setMaximumSize(new Dimension(964, 400));
+ 		scrollPanel3.setBounds(20,130,970,500); 
+ 		prozor.getContentPane().add(scrollPanel3);
+	
+	}
+	
+	public static void createGraphic() { 
+		
+	 	prozor.setVisible(false);
+	 	
+	 	 prozor2 = new JFrame ("APLIKACIJA - GRAFOVI");
+		   prozor2.getContentPane().setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		   prozor2.setSize(1024, 700);
+		   prozor2.setLocation(200, 200);
+		   prozor2.setResizable(false);
+		   prozor2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		   prozor2.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		    	
+		   JLabel lblGraphTitle = new JLabel("GRAF");
+		   lblGraphTitle.setPreferredSize(new Dimension(1920, 80));
+		   lblGraphTitle.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		   lblGraphTitle.setFont(new Font("Segoe Script", Font.PLAIN, 20));
+		   lblGraphTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		   prozor2.getContentPane().add(lblGraphTitle);
+		    	
+		   JButton btnFirstEdge = new JButton("DODAJ POÈETNI ÈVOR");
+		   btnFirstEdge.addMouseListener(new MouseAdapter() {
+			   @Override
+		   		public void mouseClicked(MouseEvent e) {
+		   			//if(btnAllGraphClickEvent == true) { showGraphicAll(); }
+		    			
+		   		}
+		   });
+		       	
+		   btnFirstEdge.setPreferredSize(new Dimension(200, 30));
+		   btnFirstEdge.setMaximumSize(new Dimension(200, 30));
+		   btnFirstEdge.setMinimumSize(new Dimension(200, 30));
+		   prozor2.getContentPane().add(btnFirstEdge);
+		    	
+		   JButton btnCreateLink = new JButton("DODAJ SUSJEDNI ÈVOR");
+		   btnCreateLink.addMouseListener(new MouseAdapter() {
+		   		@Override
+		   		public void mouseClicked(MouseEvent e) {
+		   			//if(btnOperateriClickEvent == true) { showGraphicOperateri(); }
+		   		}
+		   });
+		   btnCreateLink.addActionListener(new ActionListener() {
+		   		public void actionPerformed(ActionEvent e) {
+		   		}
+		   });
+		   btnCreateLink.setPreferredSize(new Dimension(200, 30));
+		   btnCreateLink.setMinimumSize(new Dimension(200, 30));
+		   btnCreateLink.setMaximumSize(new Dimension(200, 30));
+		   prozor2.getContentPane().add(btnCreateLink);
+		    	
+		   JButton btnKorisnici = new JButton("KORISNICI");
+		   		btnKorisnici.addMouseListener(new MouseAdapter() {
+		    	@Override
+		    	public void mouseClicked(MouseEvent e) {
+		    		
+		    		//if(btnKorisniciClickEvent == true) { showGraphicKorisnici(); }
+		    	}
+		   });
+		   btnKorisnici.setPreferredSize(new Dimension(200, 30));
+		   btnKorisnici.setMinimumSize(new Dimension(200, 30));
+		   btnKorisnici.setMaximumSize(new Dimension(200, 30));
+		   prozor2.getContentPane().add(btnKorisnici);
+	 	/*
+	 	scrollPanel4 = new JScrollPane(); 
+		scrollPanel4.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+	 	scrollPanel4.setBounds(20,130,970,500); 
+	 	prozor.getContentPane().add(scrollPanel4);
+		*/
+	 	prozor2.setVisible(true);
+	}
+		
 	
     public static void main(String[] args)
     { 	
-		if(MysqlConn.conn() == null) {
-			return;
-		}
-    	
-    	String arg = null;
-    	for(String sm : args) { 
-    		arg = sm;
-    	}
-    	
-    	if(arg == null) {
-    		  	
-	        prozor = new JFrame ("APLIKACIJA - GRAFIK");
-	        prozor.getContentPane().setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-	    	prozor.setSize(1024, 700);
-	    	prozor.setLocation(200, 200);
-	    	prozor.setResizable(false);
-	    	prozor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    	prozor.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+    	    		  	
+	   prozor = new JFrame ("APLIKACIJA - GRAFOVI");
+	   prozor.getContentPane().setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+	   prozor.setSize(1024, 700);
+	   prozor.setLocation(200, 200);
+	   prozor.setResizable(false);
+	   prozor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	   prozor.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 	    	
-	    	JLabel lblGraphTitle = new JLabel("LISTA POVEZANIH ÄŒVOROVA");
-	    	lblGraphTitle.setMaximumSize(new Dimension(1920, 80));
-	    	lblGraphTitle.setMinimumSize(new Dimension(800, 80));
-	    	lblGraphTitle.setPreferredSize(new Dimension(1920, 80));
-	    	lblGraphTitle.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-	    	lblGraphTitle.setFont(new Font("Segoe Script", Font.PLAIN, 20));
-	    	lblGraphTitle.setHorizontalAlignment(SwingConstants.CENTER);
-	    	prozor.getContentPane().add(lblGraphTitle);
+	   JLabel lblGraphTitle = new JLabel("LISTA POVEZANIH \u010CVOROVA");
+	   lblGraphTitle.setMaximumSize(new Dimension(1920, 80));
+	   lblGraphTitle.setMinimumSize(new Dimension(800, 80));
+	   lblGraphTitle.setPreferredSize(new Dimension(1920, 80));
+	   lblGraphTitle.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+	   lblGraphTitle.setFont(new Font("Segoe Script", Font.PLAIN, 20));
+	   lblGraphTitle.setHorizontalAlignment(SwingConstants.CENTER);
+	   prozor.getContentPane().add(lblGraphTitle);
 	    	
-	    	JButton btnAllGraph = new JButton("PRIKAÅ½I SVE");
-	    	btnAllGraph.addMouseListener(new MouseAdapter() {
-	    		@Override
-	    		public void mouseClicked(MouseEvent e) {
-	    			showGraphicAll();
+	   JButton btnAllGraph = new JButton("PRIKAŽI SVE");
+	   btnAllGraph.addMouseListener(new MouseAdapter() {
+		   @Override
+	   		public void mouseClicked(MouseEvent e) {
+	   			if(btnAllGraphClickEvent == true) { showGraphicAll(); }
 	    			
-	    		}
-	    	});
-	    	    	
-	    	btnAllGraph.setPreferredSize(new Dimension(200, 30));
-	    	btnAllGraph.setMaximumSize(new Dimension(200, 30));
-	    	btnAllGraph.setMinimumSize(new Dimension(200, 30));
-	    	prozor.getContentPane().add(btnAllGraph);
+	   		}
+	   });
+	       	
+	   btnAllGraph.setPreferredSize(new Dimension(200, 30));
+	   btnAllGraph.setMaximumSize(new Dimension(200, 30));
+	   btnAllGraph.setMinimumSize(new Dimension(200, 30));
+	   prozor.getContentPane().add(btnAllGraph);
 	    	
-	    	JButton btnOperateri = new JButton("OPERATERI");
-	    	btnOperateri.addMouseListener(new MouseAdapter() {
-	    		@Override
-	    		public void mouseClicked(MouseEvent e) {
-	    			showGraphicOperateri();
-	    		}
-	    	});
-	    	btnOperateri.addActionListener(new ActionListener() {
-	    		public void actionPerformed(ActionEvent e) {
-	    		}
-	    	});
-	    	btnOperateri.setPreferredSize(new Dimension(200, 30));
-	    	btnOperateri.setMinimumSize(new Dimension(200, 30));
-	    	btnOperateri.setMaximumSize(new Dimension(200, 30));
-	    	prozor.getContentPane().add(btnOperateri);
+	   JButton btnOperateri = new JButton("OPERATERI");
+	   btnOperateri.addMouseListener(new MouseAdapter() {
+	   		@Override
+	   		public void mouseClicked(MouseEvent e) {
+	   			if(btnOperateriClickEvent == true) { showGraphicOperateri(); }
+	   		}
+	   });
+	   btnOperateri.addActionListener(new ActionListener() {
+	   		public void actionPerformed(ActionEvent e) {
+	   		}
+	   });
+	   btnOperateri.setPreferredSize(new Dimension(200, 30));
+	   btnOperateri.setMinimumSize(new Dimension(200, 30));
+	   btnOperateri.setMaximumSize(new Dimension(200, 30));
+	   prozor.getContentPane().add(btnOperateri);
 	    	
-	    	JButton btnKorisnici = new JButton("KORISNICI");
-	    	btnKorisnici.addMouseListener(new MouseAdapter() {
-	    		@Override
-	    		public void mouseClicked(MouseEvent e) {
-	    			showGraphicKorisnici();
-	    		}
-	    	});
-	    	btnKorisnici.setPreferredSize(new Dimension(200, 30));
-	    	btnKorisnici.setMinimumSize(new Dimension(200, 30));
-	    	btnKorisnici.setMaximumSize(new Dimension(200, 30));
-	    	prozor.getContentPane().add(btnKorisnici);
-	    	
-	    	JComboBox comboBox_1 = new JComboBox();
-	    	comboBox_1.setPreferredSize(new Dimension(200, 30));
-	    	comboBox_1.setMinimumSize(new Dimension(200, 30));
-	    	comboBox_1.setMaximumSize(new Dimension(200, 30));
-	    	prozor.getContentPane().add(comboBox_1);
-    	    	
-    	}
-    	
-		prozor.setVisible(true);
+	   JButton btnKorisnici = new JButton("KORISNICI");
+	   		btnKorisnici.addMouseListener(new MouseAdapter() {
+	    	@Override
+	    	public void mouseClicked(MouseEvent e) {
+	    		
+	    		if(btnKorisniciClickEvent == true) { showGraphicKorisnici(); }
+	    	}
+	   });
+	   btnKorisnici.setPreferredSize(new Dimension(200, 30));
+	   btnKorisnici.setMinimumSize(new Dimension(200, 30));
+	   btnKorisnici.setMaximumSize(new Dimension(200, 30));
+	   prozor.getContentPane().add(btnKorisnici);
+	   
+	   JButton btnCreateGraph = new JButton("KREIRAJ GRAF");
+	   btnCreateGraph.addMouseListener(new MouseAdapter() {
+		   @Override
+	   		public void mouseClicked(MouseEvent e) {
+			  /*
+			   btnOperateri.setEnabled(false);
+			   btnOperateriClickEvent = false;
+			   btnKorisnici.setEnabled(false);
+			   btnKorisniciClickEvent = false;
+			   btnAllGraph.setEnabled(false);
+			   btnAllGraphClickEvent = false;
+			   btnCreateGraph.setEnabled(false);
+			   btnCreateGraphClickEvent = false;
+			   */
+			   createGraphic();
+	    			
+	   		}
+	   });
+	       	
+	   btnCreateGraph.setPreferredSize(new Dimension(200, 30));
+	   btnCreateGraph.setMaximumSize(new Dimension(200, 30));
+	   btnCreateGraph.setMinimumSize(new Dimension(200, 30));
+	   prozor.getContentPane().add(btnCreateGraph);
+	    /*	
+	   JComboBox comboBox_1 = new JComboBox();
+	   comboBox_1.setPreferredSize(new Dimension(200, 30));
+	   comboBox_1.setMinimumSize(new Dimension(200, 30));
+	   comboBox_1.setMaximumSize(new Dimension(200, 30));
+	   prozor.getContentPane().add(comboBox_1);
+    	*/  
+	   
+	   
+	   
+	   prozor.setVisible(true);
     
-    
+	  Models.Method2();  
+	  
+	  int last_el = Models.Method3().size() - 1;
+	  
+	 // System.out.println( Models.Method3().get(last_el)  );
     
     }
     

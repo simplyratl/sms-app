@@ -27,20 +27,23 @@ public class UserPanel extends JFrame {
 	
 	private JPanel contentPane;
 	public static String userFullName = "Gost";
-	public static String userName = "Gost";
+	public static String userName 	  = "Gost";
+	public static String userYears    = null;
+	public static String userGender   = null;
 	private int findSpace = -1;
-	public static String userNumber = "069123456";  
-	public static String usersentMsg = "Morate biti registrovani da biste poslali poruku!";
-	public static String userinboxMsg = "Morate biti registrovani da biste vidjeli poruke!";
+	public static String userNumber   = "069123456";  
+	public static String usersentMsg  = "Morate biti registrovani da biste poslali poruku!";
+	public static String userinboxMsg = "Morate biti registrovani da biste vidjeli poruke!";  
+	public static String userSettingsMsg = "<html>Podešavanja su dozvoljena samo registrovanim korisnicima!</html>";
 	private JTextField txtNumberTo;
-	public static int userReceiverID = -1;
-	public static int userSenderID = -1;
+	public static int userReceiverID  = -1;
+	public static int userSenderID    = -1;
 	private String userReceiverIDName = null;
-	private Date getDate = new Date();
-	private Timestamp date = new Timestamp(getDate.getTime());
+	private Date getDate 			  = new Date();
+	private Timestamp date 			  = new Timestamp(getDate.getTime());
 	
-	public static int fontSizeSM = 12;
-	public static int fontSizeMD = 16;
+	public static int fontSizeSM 	  = 12;
+	public static int fontSizeMD 	  = 16;
 	
 	
 	/**
@@ -80,6 +83,9 @@ public class UserPanel extends JFrame {
 */		
 
 // NOVO
+		
+//----------------------------------Uzimanje od promjenjive od Login panela.----------------------------------
+		
 		Login login = new Login();
 		userFullName = Login.userFullName;
 		userNumber = Login.userNumber;
@@ -243,13 +249,9 @@ public class UserPanel extends JFrame {
 					}
 					
 					
-					
 				} catch (SQLException e2) {
 					JOptionPane.showMessageDialog(null, "Samo registrovani korisnici mogu da šalju poruke!");
-/* ??? */				} /*catch (ClassNotFoundException e1) {
-					JOptionPane.showMessageDialog(null, "Greška, klasa nije pronadjena.");
-					e1.printStackTrace();
-				}*/
+				}
 			}
 		});
 		button.setForeground(Color.WHITE);
@@ -266,10 +268,19 @@ public class UserPanel extends JFrame {
 				dispose();
 			}
 		});
+				
 		button_1.setForeground(Color.WHITE);
 		button_1.setBackground(new Color(Login.backgroundColor[0], Login.backgroundColor[1], Login.backgroundColor[2]));
 		button_1.setBounds(238, 99, 96, 33);
+		
+		if(Login.userLoged == false) {
+			button_1.setEnabled(false);
+			button_1.setBackground(Color.WHITE);
+			
+		}
+		
 		contentPane.add(button_1);
+		
 		
 		Button button_1_1 = new Button("Inbox");
 		button_1_1.setForeground(Color.WHITE);

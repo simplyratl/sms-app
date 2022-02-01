@@ -28,13 +28,21 @@ public class Login extends JFrame{
 	private JPanel contentPane;
 	public JTextField txtFullName;
 	public JTextField txtNumber;
+	
+	/*
+	 * RGB prikaz boja - mijenja se u odnosu na određenog operatera.
+	 */
+	
 	public static int[] backgroundColor = {182, 57, 93};
 	
 //---------------------------------- NOVO----------------------------------------------------------------
 	public static String userFullName = "Gost";
 	public static String userNumber   = UserPanel.userNumber; 
-	public static Boolean userLoged   = false; 
 	public static int userId = 9;
+	
+	public static Boolean userLoged   = false; 
+	public static Boolean userAdmin   = false; 
+	
 //-------------------------------------------------------------------------------------------------------	
 
 	/*
@@ -72,9 +80,15 @@ public class Login extends JFrame{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
+		/*
+		 * Računanje veličine ekrana korisnika i postavljanje frame u sredini.--------------
+		 */
+		
 		Toolkit toolkit = getToolkit();
 		Dimension size = toolkit.getScreenSize();
 		setLocation(size.width/2 - getWidth()/2, size.height/2 - getHeight()/2);
+		
+		//-----------------------------------------------------------------------------------
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(backgroundColor[0] ,backgroundColor[1] ,backgroundColor[2]));
@@ -113,37 +127,36 @@ public class Login extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				
 				try {
-				   // Class.forName("com.mysql.cj.jdbc.Driver");
-				   // Connection con = DriverManager.getConnection("jdbc:mysql://localhost/sms", "root","");
 				  
-//---------------------------------- NOVO----------------------------------------------------------------
 					// MySQLkonekcija	
-					Connection con = MysqlConn.conn();
-//---------------------------------- --------------------------------------------------------------------					
+					Connection con = MysqlConn.conn();				
 					
 					String fullName = txtFullName.getText();  	 
 					String number = txtNumber.getText();		
 					
-					PreparedStatement pstCheck = con.prepareStatement("select id, full_name, number from user where number='" + number + "' and full_name = '" + fullName + "'");
+					PreparedStatement pstCheck = con.prepareStatement("select id, full_name, number, administrator, gender, years from user "
+							+ "where number='" + number + "' and full_name = '" + fullName + "'");
 					ResultSet rsCheck = pstCheck.executeQuery();
 					
 					if(rsCheck.next()) {
-//---------------------------------- NOVO----------------------------------------------------------------						
+//----------------------------------Uzimanje podataka iz baze i skladištenje u promjenjive. ---------------------------------					
 						userFullName = rsCheck.getString("full_name");
 						userNumber = rsCheck.getString("number");
 						userLoged = true;
+						userAdmin = rsCheck.getBoolean("administrator");
 						userId = rsCheck.getInt("id");
-						
+						UserPanel.userGender = rsCheck.getString("gender");
+						UserPanel.userYears = rsCheck.getString("years");
 //--------------------------------------------------------------------------------------------------------
-						JOptionPane.showInternalMessageDialog(null, "Uspje�no ste se prijavili.");
+						JOptionPane.showInternalMessageDialog(null, "Uspješno ste se prijavili.");
 						UserPanel up = new UserPanel(fullName, number);
 						up.setVisible(true);
 						dispose();
 					} else {
-						JOptionPane.showMessageDialog(null, "Taj korisnik ne postoji. Poku�ajte ponovo.");
+						JOptionPane.showMessageDialog(null, "Taj korisnik ne postoji. Pokušajte ponovo.");
 					}
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(null, "Gre�ka, poku�ajte za minut.");
+					JOptionPane.showMessageDialog(null, "Greška, pokušajte za minut.");
 				}
 			}
 		});
@@ -175,9 +188,15 @@ public class Login extends JFrame{
 		JLabel serviceProviderOutput = new JLabel("");
 		serviceProviderOutput.setBounds(281, 305, 318, 15);
 		contentPane.add(serviceProviderOutput);
+		
+		/*
+		 * Mijenanje boje interface-a u odnosu na odabranog operatera,
+		 * koristeći niz RGB boja u gornjem dijelu.
+		 */
+		
 		txtNumber.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
 			
-			if(txtNumber.getText().length() >= 3) {
+		if(txtNumber.getText().length() >= 3) {
 			String operatorDigit = txtNumber.getText().substring(0,3);
 			
 				if(operatorDigit.equals("067")) {
@@ -188,7 +207,7 @@ public class Login extends JFrame{
 					
 					label.setIcon(new ImageIcon(Login.class.getResource("/images/telekomlogo.png")));
 					
-					serviceProviderOutput.setText("Va� servis provajder je Telekom.");
+					serviceProviderOutput.setText("Vaš servis provajder je Telekom.");
 				} else if(operatorDigit.equals("068")) {
 					backgroundColor = new int[] {237, 28, 36};
 					panel.setBackground(new Color(backgroundColor[0] ,backgroundColor[1] ,backgroundColor[2]));
@@ -197,7 +216,7 @@ public class Login extends JFrame{
 					
 					label.setIcon(new ImageIcon(Login.class.getResource("/images/mtelLogo.png")));
 					
-					serviceProviderOutput.setText("Va�� servis provajder je MTEL.");
+					serviceProviderOutput.setText("Vaš servis provajder je MTEL.");
 				} else if(operatorDigit.equals("069")) {
 					backgroundColor = new int[] {42, 160, 215};
 					panel.setBackground(new Color(backgroundColor[0] ,backgroundColor[1] ,backgroundColor[2]));
@@ -206,7 +225,7 @@ public class Login extends JFrame{
 					
 					label.setIcon(new ImageIcon(Login.class.getResource("/images/telenorLogo.png")));
 					
-					serviceProviderOutput.setText("Va� servis provajder je Telenor.");
+					serviceProviderOutput.setText("Vaš servis provajder je Telenor.");
 				} else {
 					serviceProviderOutput.setText("Taj servis provajder ne postoji.");
 				}
@@ -215,6 +234,10 @@ public class Login extends JFrame{
 			}
 		});
 	}
+	
+	/*
+	 * DocumentListener služi za uživo praćenje šta korisnik upisuje unutar text inputa.
+	 */
 	
 	public interface SimpleDocumentListener extends DocumentListener {
 	    void update(DocumentEvent e);

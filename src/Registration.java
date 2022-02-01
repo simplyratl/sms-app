@@ -1,3 +1,5 @@
+//VJEROVATNO ZA IZBRISATI
+
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -5,17 +7,19 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
+//VJEROVATNO ZA IZBRISATI
 import java.awt.desktop.UserSessionEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
+//VJEROVATNO ZA IZBRISATI
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-
+//VJEROVATNO ZA IZBRISATI
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,6 +48,8 @@ public class Registration extends JFrame {
 	 * Launch the application.
 	 */
 
+//Vjerovatno za izbrisati!!! ----------------------------------------------
+	
 //	List<User> users = new LinkedList<User>();
 
 	public static void main(String[] args) {
@@ -65,7 +71,7 @@ public class Registration extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
+	 * Kreiranje frame-a
 	 */
 
 	public Registration() {
@@ -105,12 +111,12 @@ public class Registration extends JFrame {
 		lblRegistracija.setBounds(41, 420, 173, 28);
 		panel.add(lblRegistracija);
 
-		JRadioButton selectMuski = new JRadioButton("Muški");
+		JRadioButton selectMuski = new JRadioButton("MuÅ¡ki");
 		genderGroup.add(selectMuski);
 		selectMuski.setBounds(281, 216, 86, 23);
 		contentPane.add(selectMuski);
 
-		JRadioButton selectZenski = new JRadioButton("Ženski");
+		JRadioButton selectZenski = new JRadioButton("Å½enski");
 		genderGroup.add(selectZenski);
 		selectZenski.setBounds(403, 216, 86, 23);
 		contentPane.add(selectZenski);
@@ -129,6 +135,11 @@ public class Registration extends JFrame {
 				} else if (selectZenski.isSelected()) {
 					gender = "Zenski";
 				}
+				
+				/*
+				 * Definisanje da korisnik ne može da unese specijalne karaktere tokom
+				 * registracije
+				 */
 				
 				 String specialCharactersString = "!@#$%&*()'+,-./:;<=>?[]^_`{|}";
 				 String illegalCharacters = "";
@@ -196,9 +207,6 @@ public class Registration extends JFrame {
 				String number = txtNumber.getText();
 
 				try {
-					Class.forName("com.mysql.cj.jdbc.Driver");
-					// Connection con = DriverManager.getConnection("jdbc:mysql://localhost/sms",
-					// "root","");
 
 					// MySQLkonekcija
 					MysqlConn MysqlConn = new MysqlConn();
@@ -256,7 +264,7 @@ public class Registration extends JFrame {
 					gender = "";
 					genderGroup.clearSelection();
 
-					JOptionPane.showMessageDialog(null, "Uspješna registracija " + fullName + ".");
+					JOptionPane.showMessageDialog(null, "UspjeÅ¡na registracija " + fullName + ".");
 					txtFullName.requestFocus();
 					
 					/*
@@ -288,8 +296,6 @@ public class Registration extends JFrame {
 					writeBill.setInt(2, idRegisteredUser);
 					
 					writeBill.executeUpdate();
-					
-					
 
 				} catch (ClassNotFoundException ex) {
 					JOptionPane.showMessageDialog(null, "ClassNotFound");
@@ -333,8 +339,10 @@ public class Registration extends JFrame {
 		txtYears.setColumns(10);
 		txtYears.setBounds(281, 143, 318, 35);
 		contentPane.add(txtYears);
+		
 		txtYears.addKeyListener(new KeyAdapter() {
 	        @Override
+	        
 	        public void keyTyped(KeyEvent e) {
 	            if (txtYears.getText().length() >= 3 ) // limitranje da korisnik moze da unese samo 3 karaktera
 	                e.consume();
@@ -379,11 +387,11 @@ public class Registration extends JFrame {
 				String operatorDigit = txtNumber.getText().substring(0, 3);
 
 				if (operatorDigit.equals("067")) {
-					outputISP.setText("Vaš provajder je Telekom.");
+					outputISP.setText("VaÅ¡ provajder je Telekom.");
 				} else if (operatorDigit.equals("068")) {
-					outputISP.setText("Vaš provajder je MTEL.");
+					outputISP.setText("VaÅ¡ provajder je MTEL.");
 				} else if (operatorDigit.equals("069")) {
-					outputISP.setText("Vaš provajder je Telenor.");
+					outputISP.setText("VaÅ¡ provajder je Telenor.");
 				} else {
 					outputISP.setText("Taj provajder ne postoji.");
 				}

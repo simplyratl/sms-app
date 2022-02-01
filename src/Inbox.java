@@ -46,8 +46,6 @@ import java.awt.Dimension;
 import java.util.*;
 
 
-
-
 public class Inbox extends JFrame{
 	
 	static {
@@ -57,8 +55,8 @@ public class Inbox extends JFrame{
 	
 	private JPanel contentPane;
 //	public static int receiver;
-	private static int messageCounter = -1;
-	private JPanel message_panel;
+//	private static int messageCounter = -1; ???
+//	private JPanel message_panel; ???
 		
 	
 		
@@ -263,19 +261,6 @@ public class Inbox extends JFrame{
 */
 			
 
-
-			
-			
-			
-		
-			
-			
-			
-			
-			
-			
-			
-			
 			
 		} catch (Exception e) {
 			// TODO: handle exception
